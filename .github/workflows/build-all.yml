@@ -148,7 +148,7 @@ jobs:
       - name: Setup test network configs
         run: cd test && ./init-test-network.sh indy_node:${{ matrix.os_version }}
       - name: Start test network
-        run: cd test && env SOCK=/var/run/docker.sock IMAGE_NAME_NODE=indy_node:${{ matrix.os_version }} IMAGE_NAME_CONTROLLER=indy_node_controller docker-compose up -d
+        run: cd test && env SOCK=/var/run/docker.sock REFERENCE_IMAGE_NAME_NODE=indy_node:${{ matrix.os_version }} IMAGE_NAME_NODE=indy_node:${{ matrix.os_version }} IMAGE_NAME_CONTROLLER=indy_node_controller docker-compose up -d
       - name: Get Ledger State
         id: ledger
         run: |
