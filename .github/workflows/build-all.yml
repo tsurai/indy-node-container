@@ -196,6 +196,10 @@ jobs:
           echo "$OUTPUT"
           echo -e $OUTPUT | awk -F= '$1>${{ steps.node-restart.outputs.restart-time }}'
           echo "::set-output name=count::$(echo -e $OUTPUT | awk -F= '$1>${{ steps.node-restart.outputs.restart-time }}' | wc -l)"
+          docker logs controller1
+          docker logs controller2
+          docker logs controller3
+          docker logs controller4
       - name: Fail if not all nodes restarted
         if: steps.nodes_restarted.outputs.count != 4
         uses: actions/github-script@v3
