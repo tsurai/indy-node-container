@@ -186,11 +186,12 @@ jobs:
         run: |
           echo "::set-output name=restart-time::$(date +%s)"
           date +%s
+          docker container ls --filter "name=node" --format="{{.Names}}" | xargs -n1 docker container inspect --format="{{.State.StartedAt}}" | xargs -I {} date -d {} +%s
           cd test && echo -e "indy-cli\npool create test gen_txn_file=/pool_transactions_genesis\npool connect test\nwallet create wallet key=1234\nwallet open wallet key=1234\ndid new seed=000000000000000000000000Trustee1\ndid use V4SGRU86Z58d6TV7PBUe6f\nledger pool-restart action=start" | docker-compose run indy-cli
       - name: Get node restart status
         id: nodes_restarted
         run: |
-          sleep 120
+          sleep 240
           OUTPUT="$(docker container ls --filter "name=node" --format="{{.Names}}" | xargs -n1 docker container inspect --format="{{.State.StartedAt}}" | xargs -I {} date -d {} +%s)"
           echo "$OUTPUT"
           echo -e $OUTPUT | awk -F= '$1>${{ steps.node-restart.outputs.restart-time }}'
