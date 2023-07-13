@@ -191,11 +191,11 @@ jobs:
       - name: Get node restart status
         id: nodes_restarted
         run: |
-          sleep 240
+          sleep 180
           OUTPUT="$(docker container ls --filter "name=node" --format="{{.Names}}" | xargs -n1 docker container inspect --format="{{.State.StartedAt}}" | xargs -I {} date -d {} +%s)"
           echo "$OUTPUT"
-          echo -e $OUTPUT | awk -F= '$1>${{ steps.node-restart.outputs.restart-time }}'
-          echo "::set-output name=count::$(echo -e $OUTPUT | awk -F= '$1>${{ steps.node-restart.outputs.restart-time }}' | wc -l)"
+          echo "$OUTPUT" | awk -F= '$1>${{ steps.node-restart.outputs.restart-time }}'
+          echo "::set-output name=count::$(echo "$OUTPUT" | awk -F= '$1>${{ steps.node-restart.outputs.restart-time }}' | wc -l)"
           docker logs controller1
           docker logs controller2
           docker logs controller3
