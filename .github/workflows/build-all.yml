@@ -154,7 +154,7 @@ jobs:
         run: |
           echo "Waiting 30 seconds for the ledger browser to start..."
           sleep 30
-          cd test 
+          cd test
           echo "::group::ParseValidatorOutput"
           ./parse_validator_info.sh
           echo "::endgroup::"
@@ -185,12 +185,15 @@ jobs:
         id: node-restart
         run: |
           echo "::set-output name=restart-time::$(date +%s)"
+          date +%s
           cd test && echo -e "indy-cli\npool create test gen_txn_file=/pool_transactions_genesis\npool connect test\nwallet create wallet key=1234\nwallet open wallet key=1234\ndid new seed=000000000000000000000000Trustee1\ndid use V4SGRU86Z58d6TV7PBUe6f\nledger pool-restart action=start" | docker-compose run indy-cli
       - name: Get node restart status
         id: nodes_restarted
         run: |
           sleep 60
           OUTPUT="$(docker container ls --filter "name=node" --format="{{.Names}}" | xargs -n1 docker container inspect --format="{{.State.StartedAt}}" | xargs -I {} date -d {} +%s)"
+          echo "$OUTPUT"
+          echo -e $OUTPUT | awk -F= '$1>${{ steps.node-restart.outputs.restart-time }}'
           echo "::set-output name=count::$(echo -e $OUTPUT | awk -F= '$1>${{ steps.node-restart.outputs.restart-time }}' | wc -l)"
       - name: Fail if not all nodes restarted
         if: steps.nodes_restarted.outputs.count != 4
@@ -221,7 +224,7 @@ jobs:
         run: |
           export nodeVersion=$(sed "s/~/-/" <<<$(grep -oP "indy-node=\"?\d+.\d+.\d+((~|.)?rc\d+)?\"?" build/Dockerfile.${{ matrix.os_version }} | grep -oP "\d+.\d+.\d+((~|.|-)?rc\d+)?"))
           echo "::debug::IndyNode Version is ${nodeVersion}"
-          echo "::group::DEBUG"  
+          echo "::group::DEBUG"
           echo "IndyNode Version is ${nodeVersion}"
           echo "::endgroup::"
           echo "nodeVersion=${nodeVersion}">> $GITHUB_OUTPUT
